@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import OpenAI from "openai";
-import { AI_MODELS, DEFAULT_MODELS } from "@/configs/modelConfig";
+import { AI_MODELS } from "@/configs/modelConfig";
 
 const openrouterClient = new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
