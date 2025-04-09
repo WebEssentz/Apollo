@@ -20,6 +20,7 @@ import { uuid } from 'drizzle-orm/pg-core'
 import { useAuthContext } from '@/app/provider'
 import { useRouter } from 'next/navigation'
 import Constants from '@/data/Constants'
+import { MODEL_DETAILS } from '@/configs/modelConfig'
 import { toast } from 'sonner'
 function ImageUpload() {
 
@@ -118,7 +119,7 @@ function ImageUpload() {
                             <SelectValue placeholder="Select AI Model" />
                         </SelectTrigger>
                         <SelectContent>
-                            {Constants?.AiModelList.map((model, index) => (
+                            {MODEL_DETAILS?.map((model, index) => (
                                 <SelectItem value={model.name} key={index} >
                                     <div className='flex items-center gap-2'>
                                         <Image src={model.icon} alt={model.name} width={25} height={25} />
