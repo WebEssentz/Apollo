@@ -1,36 +1,33 @@
 "use client"
 import { auth } from '@/configs/firebaseConfig';
-import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
-import { useEffect } from 'react';
-import { toast } from 'sonner';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import React from 'react'
 
 function Authentication({ children }: any) {
     const provider = new GoogleAuthProvider();
 
-    useEffect(() => {
-        // Handle redirect result
-        getRedirectResult(auth)
-            .then((result) => {
-                if (result) {
-                    const user = result.user;
-                    console.log('Signed in user:', user);
-                    toast.success('Successfully signed in!');
-                }
-            })
-            .catch((error) => {
-                console.error('Auth Error:', error);
-                toast.error('Sign in failed. Please try again.');
-            });
-    }, []);
-
     const onButtonPress = () => {
-        signInWithRedirect(auth, provider)
-            .catch((error) => {
-                console.error('Auth Error:', error);
-                toast.error('Sign in failed. Please try again.');
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                // This gives you a Google Access Token. You can use it to access the Google API.
+                const credential: any = GoogleAuthProvider.credentialFromResult(result);
+                const token = credential.accessToken;
+                // The signed-in user info.
+                const user = result.user;
+                console.log(user);
+                // IdP data available using getAdditionalUserInfo(result)
+                // ...
+            }).catch((error) => {
+                // Handle Errors here.
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // The email of the user's account used.
+                const email = error.customData.email;
+                // The AuthCredential type that was used.
+                const credential = GoogleAuthProvider.credentialFromError(error);
+                // ...
             });
     }
-
     return (
         <div>
             <div onClick={onButtonPress}>

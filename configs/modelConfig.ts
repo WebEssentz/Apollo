@@ -1,6 +1,6 @@
 export const AI_MODELS = {
     GEMINI: 'google/gemini-2.5-pro-exp-03-25:free',
-    GPT4: 'openai/gpt-4o-mini',
+    GPT4: 'openai/gpt-4.5-preview',
     QUASAR: 'openrouter/quasar-alpha'
 } as const;
 
