@@ -12,7 +12,7 @@ const openrouterClient = new OpenAI({
     }
 });
 
-export const maxDuration = 3000;
+export const maxDuration = 300;
 
 // Model-specific configurations for optimal performance
 const MODEL_CONFIGS: Record<string, GenerationConfig> = {
