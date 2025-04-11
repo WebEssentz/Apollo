@@ -4,8 +4,9 @@ import { desc, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-    const { description, imageUrl, model, uid, email } = await req.json();
-    console.log(uid)
+    try {
+        const { description, imageUrl, model, uid, email } = await req.json();
+        console.log('Received request:', { description, imageUrl, model, uid, email });
 
     const creditResult = await db.select().from(usersTable)
         .where(eq(usersTable.email, email));
@@ -28,8 +29,13 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(result);
     }
     else {
-        return NextResponse.json({ 'error': 'Not enough credits' })
+        return NextResponse.json({ error: 'Not enough credits' }, { status: 400 })
     }
+} catch (error) {
+    console.error('API Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    return NextResponse.json({ error: 'Server error occurred', details: errorMessage }, { status: 500 });
+}
 }
 
 export async function GET(req: Request) {

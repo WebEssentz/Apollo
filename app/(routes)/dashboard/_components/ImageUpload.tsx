@@ -14,7 +14,7 @@ import { useAuthContext } from '@/app/provider'
 import { useRouter } from 'next/navigation'
 import { MODEL_DETAILS } from '@/configs/modelConfig'
 import { toast } from 'sonner'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { ModelType } from '@/types/ai'
 
 
@@ -72,7 +72,11 @@ function ImageUpload() {
             router.push('/view-code/' + uid);
         } catch (error) {
             console.error('Conversion error:', error);
-            toast.error('Failed to convert image to code');
+            const errorMessage = error instanceof Error ? ((error as AxiosError<{ error: string }>).response?.data?.error || error.message) : 'Failed to convert image to code';
+            toast.error(errorMessage);
+            if ((error as AxiosError<{details: string}>).response?.data?.details) {
+                console.error('Error details:', (error as AxiosError<{details: string}>).response?.data?.details);
+            }
         } finally {
             setLoading(false);
         }

@@ -5,29 +5,35 @@ import { db } from "@/configs/db";
 import { usersTable } from "@/configs/schema";
 
 export async function POST(req: NextRequest) {
-    const { userEmail, userName } = await req.json();
-    console.log(userEmail)
-    // try {
-    const result = await db.select().from(usersTable)
-        .where(eq(usersTable.email, userEmail));
+    try {
+        const { userEmail, userName } = await req.json();
+        
+        if (!userEmail) {
+            return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+        }
 
-    if (result?.length == 0) {
+        const existingUser = await db.select().from(usersTable)
+            .where(eq(usersTable.email, userEmail));
 
-        const result: any = await db.insert(usersTable).values({
-            name: userName,
-            email: userEmail,
-            credits: 3,
-            // @ts-ignore
-        }).returning(usersTable);
+        if (existingUser?.length === 0) {
+            const newUser = await db.insert(usersTable).values({
+                name: userName || '',
+                email: userEmail,
+                credits: 3,
+            }).returning();
 
-        return NextResponse.json(result[0]);
+            return NextResponse.json(newUser[0]);
+        }
+        
+        return NextResponse.json(existingUser[0]);
+    } catch (error) {
+        console.error('User API Error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        return NextResponse.json(
+            { error: 'Failed to process user request', details: errorMessage },
+            { status: 500 }
+        );
     }
-    return NextResponse.json(result[0]);
-
-
-    // } catch (e) {
-    //     return NextResponse.json(e)
-    // }
 }
 
 export async function GET(req: Request) {

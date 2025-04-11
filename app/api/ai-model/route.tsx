@@ -1,64 +1,24 @@
 import { NextRequest } from "next/server";
 import OpenAI from "openai";
 import { AI_MODELS } from "@/configs/modelConfig";
-import { GenerationConfig } from "@/types/ai";
 
-const openrouterClient = new OpenAI({
-    baseURL: "https://openrouter.ai/api/v1",
-    apiKey: process.env.OPENROUTER_AI_API_KEY,
-    defaultHeaders: {
-        "HTTP-Referer": process.env.NEXT_PUBLIC_URL,
-        "X-Title": "Apollo Wireframe-to-Code" 
-    }
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+    maxRetries: 3,
 });
 
 export const maxDuration = 300;
 
-// Model-specific configurations for optimal performance
-const MODEL_CONFIGS: Record<string, GenerationConfig> = {
-    [AI_MODELS.GEMINI]: {
-        temperature: 0.7,
-        max_completion_tokens: 4000,
-        top_p: 0.95,
-        presence_penalty: 0.5,
-        frequency_penalty: 0.5
-    },
-    [AI_MODELS.GPT4]: {
-        temperature: 0.5,
-        max_completion_tokens: 4000,
-        top_p: 0.9,
-        presence_penalty: 0.3,
-        frequency_penalty: 0.3
-    },
-    [AI_MODELS.QUASAR]: {
-        temperature: 0.75,
-        max_completion_tokens: 4000,
-        top_p: 0.92,
-        presence_penalty: 0.4,
-        frequency_penalty: 0.4
-    }
-};
-
-
 export async function POST(req: NextRequest) {
-    const { model, description, imageUrl } = await req.json();
+    try {
+        const { description, imageUrl } = await req.json();
 
-    // Get the selected model or fallback to default
-    const selectedModel = model || AI_MODELS.GEMINI;
-    const modelConfig = MODEL_CONFIGS[selectedModel];
-    
-    if (!modelConfig) {
-        throw new Error('Invalid model configuration');
-    }
-
-    try {       
-        const response = await openrouterClient.chat.completions.create({
-            model: selectedModel || AI_MODELS.GEMINI,
-            stream: true,
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-2024-08-06",
             messages: [
                 {
                     role: "system",
-                    content: "You are an expert full-stack developer specializing in converting wireframes to production-ready code."
+                    content: "You are an expert UI/UX developer specializing in converting wireframes to production-ready code. Analyze the image deeply and provide the optimal implementation."
                 },
                 {
                     role: "user",
@@ -70,25 +30,32 @@ export async function POST(req: NextRequest) {
                         {
                             type: "image_url",
                             image_url: {
-                                url: imageUrl
+                                url: imageUrl,
+                                detail: "high"
                             }
                         }
                     ]
                 }
             ],
-            temperature: 0.4,
-            max_completion_tokens: 4000,
+            temperature: 0.2,
+            max_tokens: 4000,
+            top_p: 0.95,
+            frequency_penalty: 0.1,
+            presence_penalty: 0.1,
+            stream: true,
         });
 
-        // Create a readable stream
+        // Create a TransformStream for streaming the response
         const stream = new ReadableStream({
             async start(controller) {
                 for await (const chunk of response) {
-                    const text = chunk.choices?.[0]?.delta?.content || "";
-                    controller.enqueue(new TextEncoder().encode(text));
+                    const content = chunk.choices[0]?.delta?.content;
+                    if (content) {
+                        controller.enqueue(new TextEncoder().encode(content));
+                    }
                 }
                 controller.close();
-            },
+            }
         });
 
         return new Response(stream, {
