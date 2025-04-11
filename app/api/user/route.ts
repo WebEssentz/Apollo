@@ -36,6 +36,8 @@ export async function POST(req: NextRequest) {
     }
 }
 
+// code
+
 export async function GET(req: Request) {
     const reqUrl = req.url;
     const { searchParams } = new URL(reqUrl);
