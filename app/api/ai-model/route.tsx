@@ -1,39 +1,20 @@
 import { NextRequest } from "next/server";
 import OpenAI from "openai";
 import { AI_MODELS } from "@/configs/modelConfig";
-import { getFineTunedModel } from "@/scripts/manage-fine-tuned-model";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
     maxRetries: 3,
 });
 
-let fineTunedModelId: string | null = null;
-
-// Initialize the fine-tuned model ID
-getFineTunedModel().then(modelId => {
-    if (modelId) {
-        fineTunedModelId = modelId;
-        Object.defineProperty(AI_MODELS, 'FINE_TUNED', {
-            value: modelId,
-            writable: true
-        });
-    }
-});
-
 export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
     try {
-        const { description, imageUrl, selectedModel } = await req.json();
-
-        // Use the fine-tuned model if selected and available
-        const modelToUse = selectedModel === AI_MODELS.FINE_TUNED && fineTunedModelId 
-            ? fineTunedModelId 
-            : selectedModel || AI_MODELS.GPT4;
+        const { description, imageUrl } = await req.json();
 
         const response = await openai.chat.completions.create({
-            model: modelToUse,
+            model: "gpt-4o-2024-08-06",
             messages: [
                 {
                     role: "system",

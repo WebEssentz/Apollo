@@ -5,13 +5,13 @@ import { getStorage } from 'firebase/storage';
 
 // Your Firebase configuration for authentication
 const authConfig = {
-    apiKey: process.env.FIREBASE_AUTH_API_KEY,
-    authDomain: process.env.FIREBASE_DOMAIN,
-    projectId: process.env.FIREBASE_ID,
-    storageBucket: process.env.FIRE_STORAGE_BUCKET,
-    messagingSenderId: process.env.FIRE_MESSAGE,
-    appId: process.env.FIRE_APP_ID,
-    measurementId: process.env.FIRE_MEASURE_ID
+    apiKey: "AIzaSyDNxEYQ9b9-v5A_iNK5VgZr2YdqUH8vALA",
+    authDomain: "apollo-fc188.firebaseapp.com",
+    projectId: "apollo-fc188",
+    storageBucket: "apollo-fc188.firebasestorage.app",
+    messagingSenderId: "404144137302",
+    appId: "1:404144137302:web:3ed94ee68f2a15122d47f7",
+    measurementId: "G-NYCZ8LP3MT"
 };
 
 // Storage configuration (keep existing config)
