@@ -20,7 +20,6 @@ export interface RECORD {
 }
 
 function ViewCode() {
-
     const { uid } = useParams();
     const [loading, setLoading] = useState(false);
     const [codeResp, setCodeResp] = useState('');

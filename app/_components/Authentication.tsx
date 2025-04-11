@@ -1,36 +1,39 @@
 "use client"
 import { auth } from '@/configs/firebaseConfig';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import React from 'react'
+import React, { useState } from 'react'
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 function Authentication({ children }: any) {
+    const [isLoading, setIsLoading] = useState(false);
     const provider = new GoogleAuthProvider();
 
-    const onButtonPress = () => {
-        signInWithPopup(auth, provider)
-            .then((result) => {
-                // This gives you a Google Access Token. You can use it to access the Google API.
-                const credential: any = GoogleAuthProvider.credentialFromResult(result);
-                const token = credential.accessToken;
-                // The signed-in user info.
-                const user = result.user;
-                console.log(user);
-                // IdP data available using getAdditionalUserInfo(result)
-                // ...
-            }).catch((error) => {
-                // Handle Errors here.
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                // The email of the user's account used.
-                const email = error.customData.email;
-                // The AuthCredential type that was used.
-                const credential = GoogleAuthProvider.credentialFromError(error);
-                // ...
-            });
+    const onButtonPress = async () => {
+        try {
+            setIsLoading(true);
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            toast.success('Successfully signed in!');
+        } catch (error: any) {
+            console.error('Auth error:', error);
+            toast.error(error.message || 'Failed to sign in');
+        } finally {
+            setIsLoading(false);
+        }
     }
+
     return (
         <div>
-            <div onClick={onButtonPress}>
+            <div 
+                onClick={onButtonPress}
+                className={`relative ${isLoading ? 'cursor-wait' : 'cursor-pointer'}`}
+            >
+                {isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/50 rounded-lg">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                    </div>
+                )}
                 {children}
             </div>
         </div>
